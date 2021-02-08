@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typing Trainer</title>
+  <link rel="stylesheet" href="styles/site.css">
+  <link rel="stylesheet" href="styles/trainer.css">
+  <script src="scripts/Errors.js"></script>
+  <script src="scripts/speedRegistrar.js"></script>
+  <script src="scripts/questProvider.js"></script>
+  <script src="scripts/keyboard.js"></script>
+  <script src="scripts/inputField.js"></script>
+  <script src="scripts/training.js"></script>
+</head>
+
+<body>
+  <div class="widget" id="trainer">
+    <div class="message-canvas">
+      <div class="message-box">
+        <div class="message-header"></div>
+        <div class="message"></div>
+        <button onclick="closeMessage();">OK</button>
+      </div>
+      <script>
+        function showMessage(header, text) {
+          document.querySelector("#trainer .message-header").textContent = header;
+          document.querySelector("#trainer .message").textContent = text;
+          document.querySelector("#trainer .message-canvas").classList.add("show");
+        }
+        function closeMessage() {
+          document.querySelector("#trainer .message-header").textContent = "";
+          document.querySelector("#trainer .message").textContent = "";
+          document.querySelector("#trainer .message-canvas").classList.remove("show");
+        }
+      </script>
+    </div>
+    <header>
+      <div class="top-header">
+        <h2>Тренажер печати</h2>
+        <div class="wrapper">
+          <label>Раскладка:</label>
+          <div class="select-wrap">
+            <div class="select-arrow"></div>
+            <select onchange="window.location=this.value;">
+              <option selected value="engQWERTY">ENG(QWERTY)</option>
+              <option value="engQWERTY">ENG(QWERTY)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="openSets();" class="sets-btn"></button>
+      </div>
+      <div class="hidden-panel-curtain">
+        <div class="sets">
+          <h3>Настройки</h3>
+          <span class="wrapper">
+            <label>Режим:</label>
+            <div class="select-wrap">
+              <div class="select-arrow"></div>
+              <select id="trainMode" name="settings">
+                <option selected value="random">Случайный знак</option>
+                <option value="words">Слова</option>
+                <option value="texts">Тексты</option>
+              </select>
+            </div>
+          </span>
+          <span class="wrapper">
+            <label>Уровень:</label>
+            <div class="select-wrap">
+              <div class="select-arrow"></div>
+              <select id="trainLvl" name="settings">
+                <option selected value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+          </span>
+          <label><input type="checkbox" checked id="autoLvl" name="settings">автоматически подымать
+            уровень</label>
+          <p>Дополнительно: </p>
+          <div class="left-sets">
+            <label><input type="checkbox" id="exPuncts" name="settings">исключить знаки препинания</label><br />
+            <label><input type="checkbox" id="exCapital" name="settings">исключить заглавные буквы</label>
+          </div>
+          <div class="right-sets">
+            <label><input type="checkbox" id="exArphm" name="settings">исключить арифметические
+              знаки</label><br />
+            <label><input type="checkbox" id="exOther" name="settings">исключить прочие знаки</label>
+          </div>
+          <div class="apply">
+            <button onclick="closeSets();updateSets();">Применить</button>
+          </div>
+        </div>
+        <script>
+          function openSets() {
+            let btn = document.querySelector("#trainer button[name='startBtn']");
+            btn.dataset.state = "stop";
+            btn.textContent = "Старт";
+            training.stop();
+            document.querySelector("#trainer .hidden-panel-curtain").classList.add("show");
+          }
+          function updateSets() {
+            this.sets = {};
+            let els = document.getElementsByName("settings");
+            for (let el of els) {
+              this.sets[el.id] = el.value;
+            }
+          }
+          function closeSets() {
+            document.querySelector("#trainer .hidden-panel-curtain").classList.remove("show");
+          }
+        </script>
+      </div>
+    </header>
+    <div class="input-field"><span class="entered-text">&nbsp;</span><span class="expected-text"></span></div>
+    <div class="keyboard-wrapper"></div>
+    <footer class="apply">
+      <script>
+        function hideKeyboard(sender) {
+          sender.blur();
+          if (sender.checked) {
+            document.getElementsByClassName("keyboard-wrapper")[0].style = "opacity: 0;";
+          } else {
+            document.getElementsByClassName("keyboard-wrapper")[0].style = "";
+          }
+        }
+      </script>
+      <label><input type="checkbox" onchange="hideKeyboard(this);" autocomplete="off">Скрыть
+        клавиатуру</label>
+      <button onclick="startStop(this);" data-state="stop" name="startBtn">Старт</button>
+      <script>
+        function startStop(btn) {
+          btn.blur();
+          if (btn.dataset.state === "stop") {
+            btn.dataset.state = "play";
+            btn.textContent = "Стоп";
+            training.start();
+          } else {
+            btn.dataset.state = "stop";
+            btn.textContent = "Старт";
+            training.stop();
+          }
+        }
+      </script>
+    </footer>
+  </div>
+  <script>
+    let training = (function () {
+      let layout = [{ code: "Backquote", text1: "`", text2: "~", finger: "little-fing-left" },
+        { code: "Digit1", text1: "1", text2: "!", finger: "little-fing-left" },
+        { code: "Digit2", text1: "2", text2: "@", finger: "ring-fing-left" },
+        { code: "Digit3", text1: "3", text2: "#", finger: "middle-fing-left" },
+        { code: "Digit4", text1: "4", text2: "$", finger: "index-fing-left" },
+        { code: "Digit5", text1: "5", text2: "%", finger: "index-fing-left" },
+        { code: "Digit6", text1: "6", text2: "^", finger: "index-fing-right" },
+        { code: "Digit7", text1: "7", text2: "&", finger: "index-fing-right" },
+        { code: "Digit8", text1: "8", text2: "*", finger: "middle-fing-right" },
+        { code: "Digit9", text1: "9", text2: "(", finger: "ring-fing-right" },
+        { code: "Digit0", text1: "0", text2: ")", finger: "little-fing-right" },
+        { code: "Minus", text1: "-", text2: "_", finger: "little-fing-right" },
+        { code: "Equal", text1: "=", text2: "+", finger: "little-fing-right" },
+
+        { code: "KeyQ", text1: "q", text2: "Q", finger: "little-fing-left" },
+        { code: "KeyW", text1: "w", text2: "W", finger: "ring-fing-left" },
+        { code: "KeyE", text1: "e", text2: "E", finger: "middle-fing-left" },
+        { code: "KeyR", text1: "r", text2: "R", finger: "index-fing-left" },
+        { code: "KeyT", text1: "t", text2: "T", finger: "index-fing-left" },
+        { code: "KeyY", text1: "y", text2: "Y", finger: "index-fing-right" },
+        { code: "KeyU", text1: "u", text2: "U", finger: "index-fing-right" },
+        { code: "KeyI", text1: "i", text2: "I", finger: "middle-fing-right" },
+        { code: "KeyO", text1: "o", text2: "O", finger: "ring-fing-right" },
+        { code: "KeyP", text1: "p", text2: "P", finger: "little-fing-right" },
+        { code: "BracketLeft", text1: "[", text2: "{", finger: "little-fing-right" },
+        { code: "BracketRight", text1: "]", text2: "}", finger: "little-fing-right" },
+
+        { code: "KeyA", text1: "a", text2: "A", finger: "little-fing-left" },
+        { code: "KeyS", text1: "s", text2: "S", finger: "ring-fing-left" },
+        { code: "KeyD", text1: "d", text2: "D", finger: "middle-fing-left" },
+        { code: "KeyF", text1: "f", text2: "F", finger: "index-fing-left" },
+        { code: "KeyG", text1: "g", text2: "G", finger: "index-fing-left" },
+        { code: "KeyH", text1: "h", text2: "H", finger: "index-fing-right" },
+        { code: "KeyJ", text1: "j", text2: "J", finger: "index-fing-right" },
+        { code: "KeyK", text1: "k", text2: "K", finger: "middle-fing-right" },
+        { code: "KeyL", text1: "l", text2: "L", finger: "ring-fing-right" },
+        { code: "Semicolon", text1: ";", text2: ":", finger: "little-fing-right" },
+        { code: "Quote", text1: "'", text2: '"', finger: "little-fing-right" },
+        { code: "Backslash", text1: "\\", text2: "|", finger: "little-fing-right" },
+
+        { code: "KeyZ", text1: "z", text2: "Z", finger: "little-fing-left" },
+        { code: "KeyX", text1: "x", text2: "X", finger: "ring-fing-left" },
+        { code: "KeyC", text1: "c", text2: "C", finger: "middle-fing-left" },
+        { code: "KeyV", text1: "v", text2: "V", finger: "index-fing-left" },
+        { code: "KeyB", text1: "b", text2: "B", finger: "index-fing-left" },
+        { code: "KeyN", text1: "n", text2: "N", finger: "index-fing-right" },
+        { code: "KeyM", text1: "m", text2: "M", finger: "index-fing-right" },
+        { code: "Comma", text1: ",", text2: "<", finger: "middle-fing-right" },
+        { code: "Period", text1: ".", text2: ">", finger: "ring-fing-right" },
+        { code: "Slash", text1: "/", text2: "?", finger: "little-fing-right" }];
+      let keys = new KeysStandartBuilder(layout).build(document.getElementsByClassName("keyboard-wrapper")[0]);
+      let board = new ScreenKeyboard(keys);
+      let tr = new Training(layout, board, new InputField(
+        document.getElementsByClassName("entered-text")[0],
+        document.getElementsByClassName("expected-text")[0]
+      ));
+      return tr;
+    })();
+  </script>
+</body>
+
+</html>
