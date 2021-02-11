@@ -7,9 +7,11 @@
   <title>Typing Trainer</title>
   <link rel="stylesheet" href="styles/site.css">
   <link rel="stylesheet" href="styles/trainer.css">
+  <script src="scripts/userSettings.js"></script>
   <script src="scripts/Errors.js"></script>
   <script src="scripts/speedRegistrar.js"></script>
-  <script src="scripts/questProvider.js"></script>
+  <script src="scripts/questFactories.js"></script>
+  <script src="scripts/questService.js"></script>
   <script src="scripts/keyboard.js"></script>
   <script src="scripts/inputField.js"></script>
   <script src="scripts/training.js"></script>
@@ -66,10 +68,10 @@
             </div>
           </span>
           <span class="wrapper">
-            <label>Уровень:</label>
+            <label>Начальный уровень:</label>
             <div class="select-wrap">
               <div class="select-arrow"></div>
-              <select id="trainLvl" name="settings">
+              <select id="startLevel" name="settings">
                 <option selected value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -115,6 +117,16 @@
       </div>
     </header>
     <div class="input-field"><span class="entered-text">&nbsp;</span><span class="expected-text"></span></div>
+    <div class="stat-panel">
+      <div class="stat-wrapper">
+        <p>Текущий уровень</p>
+        <div class="display" id="lvlDisp">1</div>
+      </div>
+      <div class="stat-wrapper">
+        <p>Скорость</p>
+        <div class="display" id="speedDisp">000.00 сим/мин</div>
+      </div>
+    </div>
     <div class="keyboard-wrapper"></div>
     <footer class="apply">
       <script>
@@ -126,11 +138,6 @@
             document.getElementsByClassName("keyboard-wrapper")[0].style = "";
           }
         }
-      </script>
-      <label><input type="checkbox" onchange="hideKeyboard(this);" autocomplete="off">Скрыть
-        клавиатуру</label>
-      <button onclick="startStop(this);" data-state="stop" name="startBtn">Старт</button>
-      <script>
         function startStop(btn) {
           btn.blur();
           if (btn.dataset.state === "stop") {
@@ -144,9 +151,13 @@
           }
         }
       </script>
+      <label><input type="checkbox" onchange="hideKeyboard(this);" autocomplete="off">Скрыть
+        клавиатуру</label>
+      <button onclick="startStop(this);" data-state="stop" name="startBtn">Старт</button>
     </footer>
   </div>
   <script>
+    let questFactory = new QuestFactory();
     let training = (function () {
       let layout = [{ code: "Backquote", text1: "`", text2: "~", finger: "little-fing-left" },
         { code: "Digit1", text1: "1", text2: "!", finger: "little-fing-left" },
@@ -202,8 +213,9 @@
       let board = new ScreenKeyboard(keys);
       let tr = new Training(layout, board, new InputField(
         document.getElementsByClassName("entered-text")[0],
-        document.getElementsByClassName("expected-text")[0]
-      ));
+        document.getElementsByClassName("expected-text")[0]),
+        new QuestService(questFactory)
+        );
       return tr;
     })();
   </script>

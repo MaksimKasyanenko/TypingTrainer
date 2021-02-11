@@ -1,21 +1,14 @@
 class Training {
-  constructor(layout, screenKeyboard, inputField) {
+  constructor(layout, screenKeyboard, inputField, questService) {
     if (!layout || !screenKeyboard || !inputField) throw new ArgumentIsEmptyError();
     this.started = false;
     this._layout = layout;
     this.board = screenKeyboard;
+    this.questService = questService;
     this.inputField = inputField;
     this.inputField.onenter = (e) => this._onNextLetter();
     this.inputField.oncomplete = () => this._nextLine();
     this.inputField.onerror = (e) => this._errorHandler(e);
-  }
-  get questProvider() {
-    if (!this._qp_) this._qp_ = new QuestProvider();
-    return this._qp_;
-  }
-  set questProvider(questProv) {
-    if (!questProv) throw new ArgumentIsEmptyError();
-    this._qp_ = questProv;
   }
   get speedRegistrar() {
     if (!this._sr_) this._sr_ = new SpeedRegistrar();
@@ -36,7 +29,7 @@ class Training {
   }
   stop() {
     this.started = false;
-    this.questProvider.resetLvl();
+    this.questService.reset();
     this.speedRegistrar.regOff();
     this.speedRegistrar.reset();
     this.inputField.clear();
@@ -49,6 +42,7 @@ class Training {
   }
   _onNextLetter() {
     this.speedRegistrar.step();
+    document.getElementById("speedDisp").textContent = this.speedRegistrar.stepsPerMin;
     this.board.unlightAll();
     this.board.lightKey(this.inputField.getExpect());
   }
@@ -63,8 +57,8 @@ class Training {
   _nextLine() {
     this.speedRegistrar.regOff();
     if (this.started) {
-      this.questProvider.onLineEntered(this.speedRegistrar.getStat());
-      let line = this.questProvider.getLine();
+      this.questService.onLineEntered(this.speedRegistrar.stepsPerMin);
+      let line = this.questService.getLine();
       this.inputField.fill(line);
       this.board.lightKey(this.inputField.getExpect());
       this.speedRegistrar.reset();

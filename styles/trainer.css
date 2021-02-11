@@ -196,7 +196,7 @@ text-align: center;
   border-radius: 0.5rem;
   background:#393e52;
   padding: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   font-family: 'Courier New', Courier, monospace;
 }
 #trainer .input-field .entered-text{
@@ -254,11 +254,25 @@ margin-bottom: 1rem;
   display: table;
   clear: both;
 }
-@media (max-width: 1300px){
-  .key span{
-    font-size: 0.9rem;
-    top: calc(50% - 0.45rem);
-  }
+.stat-panel{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7rem;
+display: flex;
+flex-flow: row wrap;
+justify-content: space-between;
+color: #1f9cf1;
+}
+.stat-wrapper{
+  background: #393e52;
+  border: 2px solid #1f9cf1;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.3rem;
+}
+.stat-panel .display{
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-top: 0.3rem;
 }
 @media (max-width: 900px){
   .key span{
