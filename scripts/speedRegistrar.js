@@ -34,7 +34,7 @@ class SpeedRegistrar {
     }
     get stepsPerMin() {
         let res = 60 / this.secPerStep;
-        return isFinite(res) ? Math.round(res) : 0;
+        return isFinite(res) ? res : 0;
     }
     get secPerStep() {
         let res = this._sumTime / this._count / 1000;

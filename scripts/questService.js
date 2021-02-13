@@ -1,22 +1,28 @@
 class QuestService {
-    constructor(questFactory) {
-        this.questFactory = questFactory;
+    constructor(lineSet, infoDisplay) {
+        if(!lineSet || !infoDisplay)throw new ArgumentIsEmptyError();
+        this.infoDisplay=infoDisplay;
+        this.lineSet = lineSet;
         this.currentLevel = UserSettings.startLevel;
-        this._questArr = this.questFactory.build(this.currentLevel);
+    }
+    set lineSet(val){
+        if(!val)throw new ArgumentIsEmptyError();
+        this.__ls__=val;
+    }
+    get lineSet(){
+        return this.__ls__;
     }
     onLineEntered(averageSpeed) {
-        if (averageSpeed >= 120) {
+        if (averageSpeed >= 120 && UserSettings.autoLvl) {
             this.currentLevel++;
-            document.getElementById("lvlDisp").textContent = this.currentLevel+1;
-            this._questArr = this.questFactory.build(this.currentLevel);
+            this.infoDisplay.showLvl(this.currentLevel+1);
         }
     }
     reset() {
         this.currentLevel = UserSettings.startLevel;
-        this._questArr = undefined;
+        this.infoDisplay.textContent = this.currentLevel+1;
     }
     getLine() {
-        if(!this._questArr)this._questArr = this.questFactory.build(this.currentLevel);
-        return this._questArr[this.currentLevel < this._questArr.length ? this.currentLevel : this._questArr.length - 1];
+        return this.lineSet.getLine(this.currentLevel);
     }
 }

@@ -1,14 +1,13 @@
 class Training {
-  constructor(layout, screenKeyboard, inputField, questService) {
-    if (!layout || !screenKeyboard || !inputField) throw new ArgumentIsEmptyError();
+  constructor(screenKeyboard, inputField, questService, infoDisplay) {
+    if (!screenKeyboard || !inputField || !infoDisplay) throw new ArgumentIsEmptyError();
     this.started = false;
-    this._layout = layout;
+    this.infoDisplay = infoDisplay;
     this.board = screenKeyboard;
     this.questService = questService;
     this.inputField = inputField;
     this.inputField.onenter = (e) => this._onNextLetter();
     this.inputField.oncomplete = () => this._nextLine();
-    this.inputField.onerror = (e) => this._errorHandler(e);
   }
   get speedRegistrar() {
     if (!this._sr_) this._sr_ = new SpeedRegistrar();
@@ -42,7 +41,7 @@ class Training {
   }
   _onNextLetter() {
     this.speedRegistrar.step();
-    document.getElementById("speedDisp").textContent = this.speedRegistrar.stepsPerMin;
+    this.infoDisplay.showSpeed(this.speedRegistrar.stepsPerMin);
     this.board.unlightAll();
     this.board.lightKey(this.inputField.getExpect());
   }
@@ -63,18 +62,6 @@ class Training {
       this.board.lightKey(this.inputField.getExpect());
       this.speedRegistrar.reset();
       this.speedRegistrar.regOn();
-    }
-  }
-  _errorHandler(e) {
-    let item = this._layout.find(x => x.code === e.code);
-    if (item) {
-      if (e.key != item.text1 && e.key != item.text2) {
-        window.showMessage("Ошибка!", "Возможно, выбран неверный язык ввода");
-      }
-      if ((e.key == item.text1 && e.key != item.text2 && e.shiftKey) ||
-        (e.key != item.text1 && e.key == item.text2 && !e.shiftKey)) {
-        window.showMessage("Ошибка!", "Возможно, включен CAPSLOCK");
-      }
     }
   }
 }
