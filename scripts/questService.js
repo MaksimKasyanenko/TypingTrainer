@@ -13,7 +13,8 @@ class QuestService {
         return this.__ls__;
     }
     onLineEntered(averageSpeed) {
-        if (averageSpeed >= 120 && UserSettings.autoLvl) {
+        if (averageSpeed >= this.lineSet.getLevelRiseCondition(this.currentLevel)
+                 && UserSettings.autoLvl) {
             this.currentLevel++;
             this.infoDisplay.showLvl(this.currentLevel+1);
         }
