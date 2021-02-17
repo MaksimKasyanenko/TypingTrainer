@@ -47,9 +47,8 @@
           <label>Раскладка:</label>
           <div class="select-wrap">
             <div class="select-arrow"></div>
-            <select onchange="window.location=this.value;">
+            <select onchange="window.location=''">
               <option selected value="engQWERTY">ENG(QWERTY)</option>
-              <option value="engQWERTY">ENG(QWERTY)</option>
             </select>
           </div>
         </div>
@@ -62,7 +61,7 @@
             <label>Режим:</label>
             <div class="select-wrap">
               <div class="select-arrow"></div>
-              <select id="trainMode" name="settings">
+              <select id="trainMode" name="settings" onchange="updateMinLevel();">
                 <option selected value="start">Стартовый</option>
                 <option value="random">Случайный знак</option>
                 <option value="words">Слово</option>
@@ -75,10 +74,7 @@
             <div class="select-wrap">
               <div class="select-arrow"></div>
               <select id="startLevel" name="settings">
-                <option selected value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
+                <option selected value="0">1</option>
               </select>
             </div>
           </span>
@@ -95,7 +91,7 @@
             <label><input type="checkbox" id="exOther" name="settings">исключить прочие знаки</label>
           </div>
           <div class="apply">
-            <button onclick="closeSets();updateSets();">Применить</button>
+            <button onclick="updateSets();closeSets();">Применить</button>
           </div>
         </div>
         <script>
@@ -109,11 +105,28 @@
           function updateSets() {
             let els = document.getElementsByName("settings");
             for (let el of els) {
-              UserSettings[el.id] = el.value;
+              if (el.type === "checkbox")
+                UserSettings[el.id] = el.checked;
+              else
+                UserSettings[el.id] = el.value;
             }
+            questService.lineSet = lineSets[UserSettings.trainMode];
+            questService.reset();
+            infoDisplay.showLvl(questService.currentLevel);
           }
           function closeSets() {
             document.querySelector("#trainer .hidden-panel-curtain").classList.remove("show");
+          }
+          function updateMinLevel(){
+            let el = document.getElementById("startLevel");
+            el.innerHTML="";
+            let mode = document.getElementById("trainMode").value;
+            for (let i = 0; i < lineSets[mode].levelsCount; i++) {
+              let opt = document.createElement("option");
+              opt.value = i;
+              opt.text = i + 1;
+              el.append(opt);
+            }
           }
         </script>
       </div>
@@ -159,9 +172,15 @@
     </footer>
   </div>
   <script>
+    let lineSets = {
+      "start": new LineSetQWERTYStart(),
+      "random": new LineSetQWERTYRandom(),
+      "words": new LineSetQWERTYWords(),
+      "texts": new LineSetQWERTYTexts()
+    };
     let infoDisplay = new InfoDisplay();
     let questService = new QuestService(
-      new LineSetQWERTYStart(),
+      lineSets["start"],
       infoDisplay
     );
     let training = (function () {
@@ -169,12 +188,15 @@
       let inptField = new InputField(
         document.getElementsByClassName("entered-text")[0],
         document.getElementsByClassName("expected-text")[0]);
-      inptField.onerror = (e)=>layout.errorHandler(e);
+      inptField.onerror = (e) => layout.errorHandler(e);
       let keys = new KeysStandartBuilder(layout.schema).build(document.getElementsByClassName("keyboard-wrapper")[0]);
       let board = new ScreenKeyboard(keys);
       let tr = new Training(board, inptField, questService, infoDisplay);
       return tr;
     })();
+
+    updateSets();
+    updateMinLevel();
   </script>
 </body>
 

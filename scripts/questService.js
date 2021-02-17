@@ -16,12 +16,12 @@ class QuestService {
         if (averageSpeed >= this.lineSet.getLevelRiseCondition(this.currentLevel)
                  && UserSettings.autoLvl) {
             this.currentLevel++;
-            this.infoDisplay.showLvl(this.currentLevel+1);
+            this.infoDisplay.showLvl(this.currentLevel);
         }
     }
     reset() {
         this.currentLevel = UserSettings.startLevel;
-        this.infoDisplay.textContent = this.currentLevel+1;
+        this.infoDisplay(this.currentLevel);
     }
     getLine() {
         return this.lineSet.getLine(this.currentLevel);

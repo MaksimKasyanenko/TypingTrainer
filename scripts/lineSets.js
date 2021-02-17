@@ -108,3 +108,39 @@ class LineSetQWERTYStart {
         return Math.floor(Math.random() * (to - from) + from);
     }
 }
+
+class LineSetQWERTYRandom extends LineSetBase{
+    get levelsCount() {
+        return 1;
+    }
+    getLevelRiseCondition(lvl) {
+        return 5;
+    }
+    getLine(lvl) {
+        return "random stub";
+    }
+}
+
+class LineSetQWERTYWords extends LineSetBase{
+    get levelsCount() {
+        return 1;
+    }
+    getLevelRiseCondition(lvl) {
+        return 5;
+    }
+    getLine(lvl) {
+        return "words stub";
+    }
+}
+
+class LineSetQWERTYTexts extends LineSetBase{
+    get levelsCount() {
+        return 1;
+    }
+    getLevelRiseCondition(lvl) {
+        return 5;
+    }
+    getLine(lvl) {
+        return "texsts stub";
+    }
+}
